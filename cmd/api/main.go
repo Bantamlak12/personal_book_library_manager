@@ -5,9 +5,16 @@ import (
 
 	"github.com/Bantamlak12/personal_book_library_manager/internal/api"
 	"github.com/Bantamlak12/personal_book_library_manager/internal/config"
+	"github.com/Bantamlak12/personal_book_library_manager/internal/repository"
 )
 
 func main() {
+	// Initialize the database
+	repo := repository.SQLiteRepository{}
+	repo.InitDB()
+	log.Println("Database initialized successfully.")
+	defer repo.CloseDB()
+
 	// Load the configuration
 	cfg, err := config.Load()
 	if err != nil {
