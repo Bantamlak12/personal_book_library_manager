@@ -10,8 +10,7 @@ import (
 
 func main() {
 	// Initialize the database
-	repo := repository.SQLiteRepository{}
-	repo.InitDB()
+	repo := repository.NewSQLiteRepository()
 	log.Println("Database initialized successfully.")
 	defer repo.CloseDB()
 
@@ -22,7 +21,7 @@ func main() {
 	}
 
 	// Initialize Gin router
-	server := api.SetupRouter()
+	server := api.SetupRouter(repo)
 
 	// Start the server
 	log.Printf("Server is running on %s\n", cfg.ServerAddress)
