@@ -3,12 +3,21 @@ package repository
 import (
 	"database/sql"
 	"log"
+	"time"
 
+	"github.com/Bantamlak12/personal_book_library_manager/internal/models"
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type SQLiteRepository struct {
 	db *sql.DB
+}
+
+func NewSQLiteRepository() *SQLiteRepository {
+	repo := &SQLiteRepository{}
+	repo.InitDB()
+	return repo
 }
 
 func (r *SQLiteRepository) InitDB() {
@@ -28,12 +37,12 @@ func (r *SQLiteRepository) InitDB() {
 func (r *SQLiteRepository) createTable() {
 	createBooksTable := `
 	CREATE TABLE IF NOT EXISTS books (
-	 id INTEGER PRIMARY KEY AUTOINCREMENT,
+	 id TEXT PRIMARY KEY,
 	 title TEXT NOT NULL,
 	 author TEXT NOT NULL,
 	 isbn TEXT,
 	 status TEXT NOT NULL,
-	 rating INTEGER,
+	 rating REAL,
 	 notes TEXT,
 	 created_at DATETIME NOT NULL,
 	 updated_at DATETIME NOT NULL
@@ -52,4 +61,32 @@ func (r *SQLiteRepository) CloseDB() {
 	if r.db != nil {
 		r.db.Close()
 	}
+}
+
+func (r *SQLiteRepository) Create(book *models.CreateBook) error {
+	query := `
+	INSERT INTO books (id, title, author, isbn, status, rating, notes, created_at, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close() // Closes the statement after use
+
+	book.Id = uuid.NewString()
+	// Add timestamp
+	if book.CreatedAt.IsZero() {
+		book.CreatedAt = time.Now()
+	}
+	if book.UpdatedAt.IsZero() {
+		book.UpdatedAt = time.Now()
+	}
+
+	_, err = stmt.Exec(book.Id, book.Title, book.Author, book.ISBN, book.Status, book.Rating, book.Notes, book.CreatedAt, book.UpdatedAt)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
