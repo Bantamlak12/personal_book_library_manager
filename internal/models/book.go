@@ -8,7 +8,7 @@ type CreateBook struct {
 	Author    string    `json:"author" binding:"required"`
 	ISBN      string    `json:"isbn"`
 	Status    string    `json:"status" binding:"required,oneof=read unread"`
-	Rating    float64   `json:"rating" binding:"min=0,max=5"`
+	Rating    float64   `json:"rating" binding:"min=0.0,max=5.0"`
 	Notes     string    `json:"notes"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
