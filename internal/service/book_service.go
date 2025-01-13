@@ -13,6 +13,7 @@ type BookService interface {
 	CreateBK(book *models.CreateBook) (*models.CreateBook, error)
 	GetBooks(page, limit int, rating float64, title, author, status string) (*models.PaginatedResponse, error)
 	GetBookById(id string) (*models.Book, error)
+	UpdateBook(id string, book *models.Book) (*models.Book, error)
 }
 
 type bookService struct {
@@ -72,5 +73,15 @@ func (s *bookService) GetBookById(id string) (*models.Book, error) {
 	if err != nil {
 		return nil, err
 	}
+	return book, nil
+}
+
+func (s *bookService) UpdateBook(id string, book *models.Book) (*models.Book, error) {
+	book.UpdatedAt = time.Now()
+	err := s.bookRepo.UpdateBK(id, book)
+	if err != nil {
+		return nil, err
+	}
+
 	return book, nil
 }

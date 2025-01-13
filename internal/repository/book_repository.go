@@ -197,3 +197,32 @@ func (r *SQLiteRepository) GetById(id string) (*models.Book, error) {
 }
 
 // Get Book by its ISBN
+
+// Update a book details
+func (r *SQLiteRepository) UpdateBK(id string, book *models.Book) error {
+	// Check if the book exists
+	_, err := r.GetById(id)
+	if err != nil {
+		return err
+	}
+
+	query := `
+	UPDATE books
+	SET title = ?, author = ?, isbn = ?, status = ?, rating = ?, notes = ?, updated_at = ?
+	WHERE id = ?
+	`
+
+	result, err := r.db.Exec(query, book.Title, book.Author, book.ISBN, book.Status, book.Rating, book.Notes, book.UpdatedAt, id)
+	if err != nil {
+		return err
+	}
+	rowAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowAffected == 0 {
+		return ErrBookNotFound
+	}
+
+	return nil
+}
