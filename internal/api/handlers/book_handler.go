@@ -39,7 +39,7 @@ func (h *BookHandler) CreateBook(c *gin.Context) {
 	// Save the body
 	data, err := h.bookService.CreateBK(&body)
 	if err != nil {
-		if errors.Is(err, repository.ErrBookNotFound) {
+		if errors.Is(err, repository.ErrDuplicate) {
 			utils.NewErrorResponse(c, http.StatusConflict, "DUPLICATE_RESOURCE", "A book with this ISBN already exists", "")
 		} else {
 			utils.NewErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to save the book", err.Error())
@@ -94,7 +94,32 @@ func (h *BookHandler) GetBookById(c *gin.Context) {
 
 func (h *BookHandler) GetBookByISBN(context *gin.Context) {}
 
-func (h *BookHandler) UpdateBook(c *gin.Context) {}
+func (h *BookHandler) UpdateBook(c *gin.Context) {
+	var body models.Book
+	id := c.Param("id")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		utils.NewErrorResponse(c, http.StatusBadRequest, "INVALID_REQUEST", "", err.Error())
+		return
+	}
+
+	data, err := h.bookService.UpdateBook(id, &body)
+	if err != nil {
+		if errors.Is(err, repository.ErrBookNotFound) {
+			utils.NewErrorResponse(c, http.StatusNotFound, "NOT_FOUND", "book is not found", "")
+		} else {
+			utils.NewErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to updated the book", err.Error())
+		}
+		return
+	}
+
+	response := SuccessResponse{
+		Status:  http.StatusOK,
+		Message: "Book updated successfully",
+		Data:    data,
+	}
+	c.JSON(http.StatusOK, response)
+
+}
 
 func (h *BookHandler) DeleteBook(c *gin.Context) {}
 
