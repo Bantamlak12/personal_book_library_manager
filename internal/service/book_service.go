@@ -12,6 +12,7 @@ import (
 // Defines the methods that are used to manage books
 type BookService interface {
 	CreateBK(book *models.CreateBook) (*models.CreateBook, error)
+	GetBooks(page, limit int, rating float64, title, author, status string) (*models.PaginatedResponse, error)
 }
 
 type bookService struct {
@@ -29,7 +30,7 @@ var ErrDuplicate = errors.New("a book with this ISBN already exists")
 
 func (s *bookService) CreateBK(book *models.CreateBook) (*models.CreateBook, error) {
 	// Check if the ISBN already exists
-	exists, err := s.bookRepo.IsISBNExists(book.ISBN)
+	exists, _, err := s.bookRepo.IsISBNExists(book.ISBN)
 	if err != nil {
 		return nil, err
 	}
@@ -51,4 +52,19 @@ func (s *bookService) CreateBK(book *models.CreateBook) (*models.CreateBook, err
 		return nil, err
 	}
 	return book, nil
+}
+
+// page and limit: For pagination
+// rating and status: For filtration
+// tile, author, and ISBN: For searching
+func (s *bookService) GetBooks(page, limit int, rating float64, title, author, status string) (*models.PaginatedResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 20 {
+		limit = 10
+	}
+
+	book, err := s.bookRepo.SearchOrFilter(page, limit, rating, title, author, status)
+	return book, err
 }
