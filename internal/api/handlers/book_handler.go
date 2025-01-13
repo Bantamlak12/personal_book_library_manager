@@ -121,7 +121,24 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 
 }
 
-func (h *BookHandler) DeleteBook(c *gin.Context) {}
+func (h *BookHandler) DeleteBook(c *gin.Context) {
+	id := c.Param("id")
+	err := h.bookService.DeleteBook(id)
+	if err != nil {
+		if errors.Is(err, repository.ErrBookNotFound) {
+			utils.NewErrorResponse(c, http.StatusNotFound, "NOT_FOUND", "book is not found", "")
+		} else {
+			utils.NewErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to delete the book", err.Error())
+		}
+		return
+	}
+
+	response := SuccessResponse{
+		Status:  http.StatusNoContent,
+		Message: "Book deleted successfully",
+	}
+	c.JSON(http.StatusNoContent, response)
+}
 
 func (h *BookHandler) UpdateBookStatus(c *gin.Context) {}
 
