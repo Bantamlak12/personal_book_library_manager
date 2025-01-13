@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/Bantamlak12/personal_book_library_manager/internal/api/handlers"
 	"github.com/Bantamlak12/personal_book_library_manager/internal/repository"
+	"github.com/Bantamlak12/personal_book_library_manager/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,8 +11,11 @@ func SetupRouter(repo *repository.SQLiteRepository) *gin.Engine {
 	// Create a new Gin router
 	router := gin.Default()
 
-	// Initialize the handlers with the repository
-	h := handlers.NewHandler(repo)
+	// Create the book service and pass the repository
+	bookService := service.NewBookService(repo)
+
+	// Create BookHandler and pass the bookService
+	h := handlers.NewBookHandler(bookService)
 
 	// Book endpoints
 	bookRoutes := router.Group("/api/v1/books")
