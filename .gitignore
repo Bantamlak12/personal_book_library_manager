@@ -1,0 +1,33 @@
+# Go build artifacts
+*.o
+*.a
+*.log
+
+# Go workspace and dependencies
+go.work
+
+# Coverage files
+coverage.out
+*.cover
+
+# Database files
+*.db
+
+# Environment variables
+.env
+.env.*
+
+# Docker specific files
+docker-compose.override.yml
+.dockerignore
+
+# IDE specific files
+.vscode/
+
+
+# Temporary files and backups
+*.swp
+
+# Logs and debugging
+*.log
+*.trace
