@@ -7,6 +7,7 @@ import (
 
 func NewErrorResponse(c *gin.Context, statusCode int, code, message, details string) {
 	response := models.ErrorResponse{
+		Status:  statusCode,
 		Code:    code,
 		Message: message,
 		Details: details,
