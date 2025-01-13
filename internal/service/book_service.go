@@ -14,6 +14,7 @@ type BookService interface {
 	GetBooks(page, limit int, rating float64, title, author, status string) (*models.PaginatedResponse, error)
 	GetBookById(id string) (*models.Book, error)
 	UpdateBook(id string, book *models.Book) (*models.Book, error)
+	DeleteBook(id string) error
 }
 
 type bookService struct {
@@ -84,4 +85,12 @@ func (s *bookService) UpdateBook(id string, book *models.Book) (*models.Book, er
 	}
 
 	return book, nil
+}
+
+func (s *bookService) DeleteBook(id string) error {
+	err := s.bookRepo.DeleteBook(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

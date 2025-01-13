@@ -226,3 +226,23 @@ func (r *SQLiteRepository) UpdateBK(id string, book *models.Book) error {
 
 	return nil
 }
+
+func (r *SQLiteRepository) DeleteBook(id string) error {
+	query := "DELETE FROM books WHERE id = ?"
+
+	result, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	rowAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowAffected == 0 {
+		return ErrBookNotFound
+	}
+
+	return nil
+
+}
