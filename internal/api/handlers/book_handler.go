@@ -1,38 +1,46 @@
 package handlers
 
 import (
-	"log"
+	"errors"
 	"net/http"
 
 	"github.com/Bantamlak12/personal_book_library_manager/internal/models"
-	"github.com/Bantamlak12/personal_book_library_manager/internal/repository"
+	"github.com/Bantamlak12/personal_book_library_manager/internal/service"
+	"github.com/Bantamlak12/personal_book_library_manager/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct {
-	Repo *repository.SQLiteRepository
+type BookHandler struct {
+	bookService service.BookService
 }
 
-func NewHandler(repo *repository.SQLiteRepository) *Handler {
-	return &Handler{Repo: repo}
+// Accept the BookService instance and assign it to the BookHandler
+func NewBookHandler(bookService service.BookService) *BookHandler {
+	return &BookHandler{
+		bookService: bookService,
+	}
 }
 
 func GetAllBooks(context *gin.Context) {}
 
 func GetBookById(context *gin.Context) {}
 
-func (h *Handler) CreateBook(context *gin.Context) {
-	var data models.CreateBook
-	if err := context.ShouldBindJSON(&data); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func (h *BookHandler) CreateBook(context *gin.Context) {
+	var body models.CreateBook
+	if err := context.ShouldBindJSON(&body); err != nil {
+		utils.NewErrorResponse(context, http.StatusBadRequest, "INVALID_REQUEST", "Invalid input data", err.Error())
 		return
+
 	}
 
-	// Save the data
-	err := h.Repo.Create(&data)
+	// Save the body
+	data, err := h.bookService.CreateBK(&body)
 	if err != nil {
-		log.Println(err)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the book: " + err.Error()})
+		if errors.Is(err, service.ErrDuplicate) {
+			utils.NewErrorResponse(context, http.StatusConflict, "DUPLICATE_RESOURCE", "A book with this ISBN already exists", "")
+		} else {
+			utils.NewErrorResponse(context, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to save the book", err.Error())
+		}
 		return
 	}
 
