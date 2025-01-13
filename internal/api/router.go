@@ -20,10 +20,9 @@ func SetupRouter(repo *repository.SQLiteRepository) *gin.Engine {
 	// Book endpoints
 	bookRoutes := router.Group("/api/v1/books")
 	{
-		// bookRoutes.GET("", handlers.GetAllBooks)
-		// bookRoutes.GET("/:id", handlers.GetBookById)
-		// bookRoutes.GET("/:isbn", handlers.GetBookByISBN)
-		// bookRoutes.GET("/search", handlers.SearchBooks)
+		bookRoutes.GET("", h.GetAllBooks)
+		bookRoutes.GET("/:id", h.GetBookById)
+		// bookRoutes.GET("/:isbn", h.GetBookByISBN)
 		bookRoutes.POST("", h.CreateBook)
 		// bookRoutes.PUT("/:id", handlers.UpdateBook)
 		// bookRoutes.DELETE("/:id", handlers.DeleteBook)
