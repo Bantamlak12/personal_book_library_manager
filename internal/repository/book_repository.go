@@ -12,6 +12,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var (
+	ErrDuplicate    = errors.New("a book with this ISBN already exists")
+	ErrBookNotFound = errors.New("Book not found")
+)
+
 type SQLiteRepository struct {
 	db *sql.DB
 }
@@ -177,5 +182,18 @@ func (r *SQLiteRepository) SearchOrFilter(page, limit int, rating float64, title
 }
 
 // Get Book its Id
+func (r *SQLiteRepository) GetById(id string) (*models.Book, error) {
+	var book models.Book
+	query := "SELECT * FROM books WHERE id = ?"
+	err := r.db.QueryRow(query, id).Scan(&book.Id, &book.Title, &book.Author, &book.ISBN, &book.Status, &book.Rating, &book.Notes, &book.CreatedAt, &book.UpdatedAt)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrBookNotFound
+		}
+		return nil, err
+	}
+
+	return &book, nil
+}
 
 // Get Book by its ISBN

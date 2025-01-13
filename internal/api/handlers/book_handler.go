@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/Bantamlak12/personal_book_library_manager/internal/models"
+	"github.com/Bantamlak12/personal_book_library_manager/internal/repository"
 	"github.com/Bantamlak12/personal_book_library_manager/internal/service"
 	"github.com/Bantamlak12/personal_book_library_manager/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -38,7 +39,7 @@ func (h *BookHandler) CreateBook(c *gin.Context) {
 	// Save the body
 	data, err := h.bookService.CreateBK(&body)
 	if err != nil {
-		if errors.Is(err, service.ErrDuplicate) {
+		if errors.Is(err, repository.ErrBookNotFound) {
 			utils.NewErrorResponse(c, http.StatusConflict, "DUPLICATE_RESOURCE", "A book with this ISBN already exists", "")
 		} else {
 			utils.NewErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to save the book", err.Error())
@@ -71,7 +72,25 @@ func (h *BookHandler) GetAllBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (h *BookHandler) GetBookById(c *gin.Context) {}
+func (h *BookHandler) GetBookById(c *gin.Context) {
+	id := c.Param("id")
+	book, err := h.bookService.GetBookById(id)
+	if err != nil {
+		if errors.Is(err, repository.ErrBookNotFound) {
+			utils.NewErrorResponse(c, http.StatusNotFound, "NOT_FOUND", "book is not found", "")
+		} else {
+			utils.NewErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to get the book", err.Error())
+		}
+		return
+	}
+
+	response := SuccessResponse{
+		Status: http.StatusOK,
+		Data:   book,
+	}
+	c.JSON(http.StatusOK, response)
+
+}
 
 func (h *BookHandler) GetBookByISBN(context *gin.Context) {}
 

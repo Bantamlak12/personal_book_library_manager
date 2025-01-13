@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"time"
 
 	"github.com/Bantamlak12/personal_book_library_manager/internal/models"
@@ -13,6 +12,7 @@ import (
 type BookService interface {
 	CreateBK(book *models.CreateBook) (*models.CreateBook, error)
 	GetBooks(page, limit int, rating float64, title, author, status string) (*models.PaginatedResponse, error)
+	GetBookById(id string) (*models.Book, error)
 }
 
 type bookService struct {
@@ -26,8 +26,6 @@ func NewBookService(repo *repository.SQLiteRepository) *bookService {
 	}
 }
 
-var ErrDuplicate = errors.New("a book with this ISBN already exists")
-
 func (s *bookService) CreateBK(book *models.CreateBook) (*models.CreateBook, error) {
 	// Check if the ISBN already exists
 	exists, _, err := s.bookRepo.IsISBNExists(book.ISBN)
@@ -35,7 +33,7 @@ func (s *bookService) CreateBK(book *models.CreateBook) (*models.CreateBook, err
 		return nil, err
 	}
 	if exists {
-		return nil, ErrDuplicate
+		return nil, repository.ErrBookNotFound
 	}
 
 	book.Id = uuid.NewString()
@@ -67,4 +65,12 @@ func (s *bookService) GetBooks(page, limit int, rating float64, title, author, s
 
 	book, err := s.bookRepo.SearchOrFilter(page, limit, rating, title, author, status)
 	return book, err
+}
+
+func (s *bookService) GetBookById(id string) (*models.Book, error) {
+	book, err := s.bookRepo.GetById(id)
+	if err != nil {
+		return nil, err
+	}
+	return book, nil
 }
