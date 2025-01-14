@@ -22,12 +22,12 @@ func SetupRouter(repo *repository.SQLiteRepository) *gin.Engine {
 	{
 		bookRoutes.GET("", h.GetAllBooks)
 		bookRoutes.GET("/:id", h.GetBookById)
-		// bookRoutes.GET("/:isbn", h.GetBookByISBN)
 		bookRoutes.POST("", h.CreateBook)
 		bookRoutes.PUT("/:id", h.UpdateBook)
 		bookRoutes.DELETE("/:id", h.DeleteBook)
-		// bookRoutes.PATCH("/:id/status", h.UpdateBookStatus)
-		// bookRoutes.PATCH("/:id/rating", h.UpdateBookRating)
+		bookRoutes.PATCH("/:id/status", h.UpdateBookStatus)
+		bookRoutes.PATCH("/:id/rating", h.UpdateBookRating)
+		bookRoutes.GET("/search", h.SearchBook) // Search from openlibrary
 	}
 
 	return router
