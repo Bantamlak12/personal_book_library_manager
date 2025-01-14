@@ -116,7 +116,6 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 		Data:    data,
 	}
 	c.JSON(http.StatusOK, response)
-
 }
 
 func (h *BookHandler) DeleteBook(c *gin.Context) {
@@ -138,13 +137,10 @@ func (h *BookHandler) DeleteBook(c *gin.Context) {
 	c.JSON(http.StatusNoContent, response)
 }
 
-func (h *BookHandler) UpdateBookStatus(c *gin.Context) {}
-
-func (h *BookHandler) UpdateBookRating(c *gin.Context) {}
-
 // ************************************************************* //
 // OPEN LIBRARY: Search Book by its title, author, or ISBN
 // ************************************************************* //
+
 func (h *BookHandler) SearchBook(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
