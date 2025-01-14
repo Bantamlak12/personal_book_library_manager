@@ -92,7 +92,7 @@ func (s *bookService) SearchFromOpenLibrary(page, limit int, title, author, isbn
 	// Map the books to the model
 	return &OpenLibrarySearchResponse{
 		Metadata: models.Metadata{
-			TotalPage:   int(totalPage),
+			Result:      int(totalPage),
 			CurrentPage: page,
 			PageLimit:   limit,
 		},

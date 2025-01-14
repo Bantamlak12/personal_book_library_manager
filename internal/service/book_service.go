@@ -36,7 +36,7 @@ func (s *bookService) CreateBK(book *models.CreateBook) (*models.CreateBook, err
 		return nil, err
 	}
 	if exists {
-		return nil, repository.ErrBookNotFound
+		return nil, repository.ErrDuplicate
 	}
 
 	book.Id = uuid.NewString()
@@ -79,13 +79,12 @@ func (s *bookService) GetBookById(id string) (*models.Book, error) {
 }
 
 func (s *bookService) UpdateBook(id string, book *models.Book) (*models.Book, error) {
-	book.UpdatedAt = time.Now()
-	err := s.bookRepo.UpdateBK(id, book)
+	updatedBook, err := s.bookRepo.UpdateBK(id, book)
 	if err != nil {
 		return nil, err
 	}
 
-	return book, nil
+	return updatedBook, nil
 }
 
 func (s *bookService) DeleteBook(id string) error {
