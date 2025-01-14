@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Bantamlak12/personal_book_library_manager/internal/models"
 	_ "github.com/mattn/go-sqlite3"
@@ -174,7 +175,7 @@ func (r *SQLiteRepository) SearchOrFilter(page, limit int, rating float64, title
 		Status: http.StatusOK,
 		Data:   books,
 		Metadata: models.Metadata{
-			TotalPage:   total,
+			Result:      total,
 			CurrentPage: page,
 			PageLimit:   limit,
 		},
@@ -199,12 +200,32 @@ func (r *SQLiteRepository) GetById(id string) (*models.Book, error) {
 // Get Book by its ISBN
 
 // Update a book details
-func (r *SQLiteRepository) UpdateBK(id string, book *models.Book) error {
+func (r *SQLiteRepository) UpdateBK(id string, book *models.Book) (*models.Book, error) {
 	// Check if the book exists
-	_, err := r.GetById(id)
+	existingBook, err := r.GetById(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	if book.Author != "" {
+		existingBook.Title = book.Title
+	}
+	if book.Author != "" {
+		existingBook.Author = book.Author
+	}
+	if book.ISBN != "" {
+		existingBook.ISBN = book.ISBN
+	}
+	if book.Status != "" {
+		existingBook.Status = book.Status
+	}
+	if book.Rating != 0 {
+		existingBook.Rating = book.Rating
+	}
+	if book.Notes != "" {
+		existingBook.Notes = book.Notes
+	}
+	existingBook.UpdatedAt = time.Now()
 
 	query := `
 	UPDATE books
@@ -212,19 +233,19 @@ func (r *SQLiteRepository) UpdateBK(id string, book *models.Book) error {
 	WHERE id = ?
 	`
 
-	result, err := r.db.Exec(query, book.Title, book.Author, book.ISBN, book.Status, book.Rating, book.Notes, book.UpdatedAt, id)
+	result, err := r.db.Exec(query, existingBook.Title, existingBook.Author, existingBook.ISBN, existingBook.Status, existingBook.Rating, existingBook.Notes, existingBook.UpdatedAt, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	rowAffected, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if rowAffected == 0 {
-		return ErrBookNotFound
+		return nil, ErrBookNotFound
 	}
 
-	return nil
+	return existingBook, nil
 }
 
 func (r *SQLiteRepository) DeleteBook(id string) error {
