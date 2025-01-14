@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Metadata struct {
-	TotalPage   int `json:"total_page"`
+	Result      int `json:"results"`
 	CurrentPage int `json:"current_page"`
 	PageLimit   int `json:"page_limit"`
 }
@@ -17,10 +17,10 @@ type PaginatedResponse struct {
 type Book struct {
 	Id        string    `json:"id"`
 	Title     string    `json:"title"`
-	Author    []string  `json:"author"`
-	ISBN      []string  `json:"isbn"`
+	Author    string    `json:"author"`
+	ISBN      string    `json:"isbn"`
 	Status    string    `json:"status"`
-	Rating    float64   `json:"rating"`
+	Rating    float64   `json:"rating" binding:"min=0.0,max=5.0"`
 	Notes     string    `json:"notes"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
