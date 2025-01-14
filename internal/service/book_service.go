@@ -15,6 +15,7 @@ type BookService interface {
 	GetBookById(id string) (*models.Book, error)
 	UpdateBook(id string, book *models.Book) (*models.Book, error)
 	DeleteBook(id string) error
+	SearchFromOpenLibrary(page, limit int, title, author, isbn string) (*OpenLibrarySearchResponse, error)
 }
 
 type bookService struct {
