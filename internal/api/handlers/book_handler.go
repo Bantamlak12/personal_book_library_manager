@@ -92,8 +92,6 @@ func (h *BookHandler) GetBookById(c *gin.Context) {
 
 }
 
-func (h *BookHandler) GetBookByISBN(context *gin.Context) {}
-
 func (h *BookHandler) UpdateBook(c *gin.Context) {
 	var body models.Book
 	id := c.Param("id")
@@ -143,3 +141,30 @@ func (h *BookHandler) DeleteBook(c *gin.Context) {
 func (h *BookHandler) UpdateBookStatus(c *gin.Context) {}
 
 func (h *BookHandler) UpdateBookRating(c *gin.Context) {}
+
+// ************************************************************* //
+// OPEN LIBRARY: Search Book by its title, author, or ISBN
+// ************************************************************* //
+func (h *BookHandler) SearchBook(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	title := c.Query("title")
+	author := c.Query("author")
+	isbn := c.Query("isbn")
+
+	books, err := h.bookService.SearchFromOpenLibrary(page, limit, title, author, isbn)
+	if err != nil {
+		if errors.Is(err, repository.ErrBookNotFound) {
+			utils.NewErrorResponse(c, http.StatusNotFound, "NOT_FOUND", "book is not found", "")
+		} else {
+			utils.NewErrorResponse(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to search the book", err.Error())
+		}
+		return
+	}
+
+	response := SuccessResponse{
+		Status: http.StatusOK,
+		Data:   books,
+	}
+	c.JSON(http.StatusOK, response)
+}
