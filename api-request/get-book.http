@@ -1,1 +1,2 @@
-GET http://localhost:8080/api/v1/books/9ec0be2d-7c6f-460c-aa3b-cf7eb68836fk
+GET http://localhost:8080/api/v1/books/d2c83b84-29c1-4f88-bf6f-01a0f58db733
+

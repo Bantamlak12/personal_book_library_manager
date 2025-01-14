@@ -4,8 +4,8 @@ content-type: application/json
 {
     "title": "Head First Design Patterns",
     "author": "Eric Freeman",
-    "isbn": "0596007124",
+    "isbn": "0396796424",
     "status": "unread",
-    "rating": 4.6,
+    "rating": 5,
     "notes": "Great for learning design patterns."
 }
