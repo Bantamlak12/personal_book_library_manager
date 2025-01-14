@@ -14,7 +14,7 @@ import (
 
 var (
 	ErrDuplicate    = errors.New("a book with this ISBN already exists")
-	ErrBookNotFound = errors.New("Book not found")
+	ErrBookNotFound = errors.New("book not found")
 )
 
 type SQLiteRepository struct {
@@ -174,9 +174,9 @@ func (r *SQLiteRepository) SearchOrFilter(page, limit int, rating float64, title
 		Status: http.StatusOK,
 		Data:   books,
 		Metadata: models.Metadata{
-			Total: total,
-			Page:  page,
-			Limit: limit,
+			TotalPage:   total,
+			CurrentPage: page,
+			PageLimit:   limit,
 		},
 	}, nil
 }
