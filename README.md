@@ -40,7 +40,7 @@ A Go-based web application for managing personal book collections with React fro
 1. Start the server
 
     ```
-    ./bin/api
+    ./bin/book-library
     ```
 
 2. The API will be available at `http://localhost:8080`
