@@ -1,8 +1,3 @@
-node_modules
-dist
-.dist-ssr
-*.local
-
 # Go build artifacts
 *.o
 *.a
@@ -26,6 +21,21 @@ coverage.out
 docker-compose.override.yml
 .dockerignore
 
+# Logs
+logs
+*.log
+*.trace
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -35,11 +45,7 @@ docker-compose.override.yml
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?  
+*.sw?
 
 # Temporary files and backups
 *.swp
-
-# Logs and debugging
-*.log
-*.trace
