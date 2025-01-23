@@ -10,8 +10,8 @@ type Metadata struct {
 
 type PaginatedResponse struct {
 	Status   int         `json:"status"`
-	Data     interface{} `json:"data"`
 	Metadata Metadata    `json:"metadata"`
+	Data     interface{} `json:"data"`
 }
 
 type Book struct {
