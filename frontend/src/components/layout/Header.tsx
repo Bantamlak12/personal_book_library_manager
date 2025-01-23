@@ -9,8 +9,13 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <FontAwesomeIcon icon={faBook} className="text-primary h-8 w-8" />
-            <span className="ml-2 text-xl font-bold">BookShelf</span>
+            <Link
+              to={'/'}
+              className="ml-2 text-xl font-bold flex items-center gap-4"
+            >
+              <FontAwesomeIcon icon={faBook} className="text-primary h-8 w-8" />
+              BookShelf
+            </Link>
           </div>
           <nav className="hidden md:flex space-x-8">
             <a href="#features" className="text-gray-600 hover:text-gray-900">
