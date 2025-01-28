@@ -31,7 +31,7 @@ type CreateBook struct {
 	Title     string    `json:"title" binding:"required"`
 	Author    string    `json:"author" binding:"required"`
 	ISBN      string    `json:"isbn"`
-	Status    string    `json:"status" binding:"required,oneof=read unread"`
+	Status    string    `json:"status" binding:"required"`
 	Rating    float64   `json:"rating" binding:"min=0.0,max=5.0"`
 	Notes     string    `json:"notes"`
 	CreatedAt time.Time `json:"created_at"`
@@ -39,7 +39,7 @@ type CreateBook struct {
 }
 
 type UpdateStatus struct {
-	Status    string    `json:"status" binding:"required,oneof=read unread"`
+	Status    string    `json:"status" binding:"required"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
