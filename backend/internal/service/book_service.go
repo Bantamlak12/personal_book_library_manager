@@ -63,7 +63,7 @@ func (s *bookService) GetBooks(page, limit int, rating float64, title, author, s
 		page = 1
 	}
 	if limit < 1 || limit > 20 {
-		limit = 10
+		limit = 12
 	}
 
 	book, err := s.bookRepo.SearchOrFilter(page, limit, rating, title, author, status)
