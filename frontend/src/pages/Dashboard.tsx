@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBook, faPlus } from '@fortawesome/free-solid-svg-icons';
 import {
-  faBook,
-  faSearch,
-  faUser,
-  faPlus,
-  faList,
-  faGrip,
-  faSignOutAlt,
-} from '@fortawesome/free-solid-svg-icons';
+  BookOpen,
+  User,
+  LogOut,
+  Menu,
+  X,
+  Search,
+  List,
+  Grid,
+} from 'lucide-react';
 import BookCard from '../components/BookCard';
 import AddBookModal from '../components/AddBookModal';
 import Pagination from '../components/Pagination';
@@ -20,6 +22,7 @@ const ITEMS_PER_PAGE = 12;
 const Dashboard = () => {
   const navigate = useNavigate();
   const [searchScope, setSearchScope] = useState('my-collections');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -246,71 +249,106 @@ const Dashboard = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  useEffect(() => {
-    handlePageChange(1);
-  }, [searchQuery, filters]);
+  // useEffect(() => {
+  //   handlePageChange(1);
+  // }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
+      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
             <div className="flex items-center">
-              <FontAwesomeIcon icon={faBook} className="text-primary h-6 w-6" />
-              <span className="ml-2 text-xl font-bold">BookShelf</span>
+              <BookOpen className="h-6 w-6 text-primary" />
+              <span className="ml-2 text-xl font-bold hidden sm:block">
+                BookShelf
+              </span>
             </div>
 
-            {/* Search Bar */}
-            <div className="flex-1 max-w-2xl mx-8">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
+              {/* Profile Menu */}
               <div className="relative">
-                <select
-                  className="absolute left-0 top-0 h-full border-r border-gray-300 bg-gray-50 px-3 rounded-l-md"
-                  value={searchScope}
-                  onChange={(e) => setSearchScope(e.target.value)}
+                <button
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
                 >
-                  <option value="my-collections">My Collections</option>
-                  <option value="openlibrary">OpenLibrary</option>
-                </select>
-                <input
-                  type="text"
-                  placeholder="Search books..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-36 pr-10 py-2 border rounded-md"
-                />
-                <FontAwesomeIcon
-                  icon={faSearch}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                />
+                  <User className="h-5 w-5" />
+                  <span>Profile</span>
+                </button>
+
+                {showProfileMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Profile Menu */}
-            <div className="relative">
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
               <button
-                className="flex items-center space-x-2"
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
-                <FontAwesomeIcon icon={faUser} className="h-6 w-6" />
-                <span>Profile</span>
+                {isMobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </button>
-
-              {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-                    Sign out
-                  </button>
-                </div>
-              )}
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden py-4 border-t">
+              <div className="space-y-4">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
+
+      {/* Search Bar */}
+      <div className="bg-white border-b">
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4">
+          <div className="relative">
+            <select
+              className="absolute left-0 top-0 h-full border-r border-gray-300 bg-gray-50 rounded-l-md text-sm px-10"
+              value={searchScope}
+              onChange={(e) => setSearchScope(e.target.value)}
+            >
+              <option value="my-collections">My Collections</option>
+              <option value="openlibrary">OpenLibrary</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Search books..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-52 pr-8 py-3 border rounded-md text-sm"
+            />
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -326,7 +364,11 @@ const Dashboard = () => {
                 : 'Switch to grid view'
             }
           >
-            <FontAwesomeIcon icon={viewMode === 'grid' ? faList : faGrip} />
+            {viewMode === 'grid' ? (
+              <List className="h-5 w-5" />
+            ) : (
+              <Grid className="h-5 w-5" />
+            )}
           </button>
         </div>
 
