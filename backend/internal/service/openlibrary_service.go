@@ -29,7 +29,7 @@ func constructURL(page, limit int, title, author, isbn string) (string, error) {
 		page = 1
 	}
 	if limit < 1 || limit > 20 {
-		limit = 10
+		limit = 12
 	}
 
 	// Calculate offset
