@@ -21,7 +21,7 @@ const FilterBar = ({ onFilterChange, filters }: FilterBarProps) => {
         </div>
 
         <select
-          className="border rounded-md px-3 py-1.5 text-sm"
+          className="border rounded-md px-7 py-1.5 text-sm"
           value={filters.status}
           onChange={(e) =>
             onFilterChange({ ...filters, status: e.target.value })
@@ -34,7 +34,7 @@ const FilterBar = ({ onFilterChange, filters }: FilterBarProps) => {
         </select>
 
         <select
-          className="border rounded-md px-3 py-1.5 text-sm"
+          className="border rounded-md px-7 py-1.5 text-sm"
           value={filters.rating}
           onChange={(e) =>
             onFilterChange({ ...filters, rating: e.target.value })
@@ -50,7 +50,7 @@ const FilterBar = ({ onFilterChange, filters }: FilterBarProps) => {
 
         <div className="flex items-center space-x-2">
           <select
-            className="border rounded-md px-3 py-1.5 text-sm"
+            className="border rounded-md px-7 py-1.5 text-sm"
             value={filters.sortBy}
             onChange={(e) =>
               onFilterChange({ ...filters, sortBy: e.target.value })
