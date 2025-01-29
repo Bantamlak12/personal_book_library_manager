@@ -16,6 +16,7 @@ import AddBookModal from '../components/AddBookModal';
 import Pagination from '../components/Pagination';
 import FilterBar from '../components/FilterBar';
 import { useNavigate } from 'react-router-dom';
+import SearchBookCard from '../components/SearchBookCard';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -24,10 +25,19 @@ const Dashboard = () => {
   const [searchScope, setSearchScope] = useState('my-collections');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
+  const [pendingIsbnQuery, setPendingIsbnQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [searchedBooks, setSearchedBooks] = useState<
+    {
+      title: string;
+      author: string;
+      isbn: string;
+    }[]
+  >([]);
   const [filters, setFilters] = useState({
     status: '',
     rating: '',
@@ -43,7 +53,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch(`/api/v1/books`, {
+        let url = '/api/v1/books';
+
+        if (searchScope === 'openlibrary') {
+          url = `/api/v1/books/search?page=${currentPage}&isbn=${searchQuery}`;
+        }
+
+        const response = await fetch(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -55,17 +71,35 @@ const Dashboard = () => {
         }
 
         const result = await response.json();
-        const { data, metadata } = result;
-        setBooks(data);
-        setMetadata(metadata);
-        setCurrentPage(metadata.current_page);
+
+        if (searchScope === 'my-collections') {
+          const { data, metadata } = result;
+          setBooks(data);
+          setMetadata(metadata);
+          setCurrentPage(metadata.current_page);
+        } else {
+          setSearchedBooks(
+            result.data.docs.map(
+              (book: {
+                title: string;
+                author_name: string[];
+                isbn: string;
+              }) => ({
+                title: book.title,
+                author: book.author_name?.join(', '),
+                isbn:
+                  book.isbn && book.isbn.length > 0 ? book.isbn[0] : undefined,
+              })
+            )
+          );
+        }
       } catch (error) {
         console.error('Error fetching books:', error);
       }
     };
 
     fetchBooks();
-  }, []);
+  }, [searchScope, searchQuery, currentPage]);
 
   // Handle page change
   const handlePageChange = async (newPage: number) => {
@@ -107,7 +141,6 @@ const Dashboard = () => {
     notes?: string;
     created_at: string;
   };
-  const [books, setBooks] = useState<Book[]>([]);
 
   const handleAddBook = async (bookData: any) => {
     try {
@@ -134,7 +167,6 @@ const Dashboard = () => {
 
   const handleEditBook = async (bookData: any, id: number) => {
     try {
-      console.log(id);
       const response = await fetch(`/api/v1/books/${id}`, {
         method: 'PUT',
         headers: {
@@ -142,7 +174,6 @@ const Dashboard = () => {
         },
         body: JSON.stringify(bookData),
       });
-      console.log(response);
 
       const result = await response.json();
 
@@ -249,13 +280,21 @@ const Dashboard = () => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // useEffect(() => {
-  //   handlePageChange(1);
-  // }, []);
+  const handleSearch = () => {
+    if (searchScope === 'openlibrary') {
+      setSearchQuery(pendingIsbnQuery);
+      setCurrentPage(1);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchScope === 'openlibrary') {
+      handleSearch();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -340,12 +379,31 @@ const Dashboard = () => {
             </select>
             <input
               type="text"
-              placeholder="Search books..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                searchScope === 'my-collections'
+                  ? 'Search by title, author or ISBN'
+                  : 'Search by ISBN'
+              }
+              value={
+                searchScope === 'my-collections'
+                  ? searchQuery
+                  : pendingIsbnQuery
+              }
+              onChange={(e) => {
+                if (searchScope === 'my-collections') {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                } else {
+                  setPendingIsbnQuery(e.target.value);
+                }
+              }}
+              onKeyDown={handleKeyDown}
               className="w-full pl-52 pr-8 py-3 border rounded-md text-sm"
             />
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search
+              onClick={handleSearch}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+            />
           </div>
         </div>
       </div>
@@ -354,7 +412,11 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* View Controls */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">My Collections</h1>
+          <h1 className="text-2xl font-bold">
+            {searchScope === 'my-collections'
+              ? 'My Collections'
+              : 'Search Results'}
+          </h1>
           <button
             onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
             className="p-2 border rounded-md hover:bg-gray-50"
@@ -383,21 +445,26 @@ const Dashboard = () => {
               : 'grid-cols-1'
           } gap-6`}
         >
-          {paginatedBooks.map((book) => (
-            <BookCard
-              key={book.id}
-              book={book}
-              onEdit={(updatedbookData) =>
-                handleEditBook(updatedbookData, book.id)
-              }
-              onDelete={handleDeleteBook}
-              onViewNotes={handleViewNotes}
-            />
-          ))}
+          {searchScope === 'openlibrary'
+            ? searchedBooks.map((book, index) => (
+                <SearchBookCard key={index} book={book} />
+              ))
+            : paginatedBooks.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  onEdit={(updatedBookData) =>
+                    handleEditBook(updatedBookData, book.id)
+                  }
+                  onDelete={handleDeleteBook}
+                  onViewNotes={handleViewNotes}
+                />
+              ))}
         </div>
 
         {/* Empty State */}
-        {filteredBooks.length === 0 && (
+        {((searchScope === 'my-collections' && filteredBooks.length === 0) ||
+          (searchScope === 'openlibrary' && searchedBooks.length === 0)) && (
           <div className="text-center py-12">
             <FontAwesomeIcon
               icon={faBook}
