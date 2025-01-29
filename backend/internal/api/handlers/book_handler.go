@@ -143,7 +143,7 @@ func (h *BookHandler) DeleteBook(c *gin.Context) {
 
 func (h *BookHandler) SearchBook(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "12"))
 	title := c.Query("title")
 	author := c.Query("author")
 	isbn := c.Query("isbn")
