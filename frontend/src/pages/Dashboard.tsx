@@ -18,6 +18,8 @@ import FilterBar from '../components/FilterBar';
 import { useNavigate } from 'react-router-dom';
 import SearchBookCard from '../components/SearchBookCard';
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const ITEMS_PER_PAGE = 12;
 
 const Dashboard = () => {
@@ -55,10 +57,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        let url = '/api/v1/books';
+        let url = `${BASE_URL}/books`;
 
         if (searchScope === 'openlibrary') {
-          url = `/api/v1/books/search?page=${currentPage}&isbn=${searchQuery}`;
+          url = `${BASE_URL}/books/search?page=${currentPage}&isbn=${searchQuery}`;
         }
 
         const response = await fetch(url, {
@@ -124,7 +126,7 @@ const Dashboard = () => {
   // Handle page change
   const handlePageChange = async (newPage: number) => {
     try {
-      const response = await fetch(`/api/v1/books?page=${newPage}`, {
+      const response = await fetch(`${BASE_URL}/books?page=${newPage}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +166,7 @@ const Dashboard = () => {
 
   const handleAddBook = async (bookData: any) => {
     try {
-      const response = await fetch('/api/v1/books', {
+      const response = await fetch(`${BASE_URL}/books`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -187,7 +189,7 @@ const Dashboard = () => {
 
   const handleEditBook = async (bookData: any, id: number) => {
     try {
-      const response = await fetch(`/api/v1/books/${id}`, {
+      const response = await fetch(`${BASE_URL}/books/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -214,7 +216,7 @@ const Dashboard = () => {
 
   const handleDeleteBook = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this book?')) {
-      const response = await fetch(`/api/v1/books/${id}`, {
+      const response = await fetch(`${BASE_URL}/books/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
