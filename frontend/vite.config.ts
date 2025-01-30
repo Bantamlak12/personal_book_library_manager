@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/v1': {
-        target: 'http://localhost:8080',
+        target: 'https://personal-book-library-manager-cikm.onrender.com',
         changeOrigin: true,
         secure: false,
       },
