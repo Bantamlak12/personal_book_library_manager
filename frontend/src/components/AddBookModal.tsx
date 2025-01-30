@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -6,9 +6,15 @@ interface AddBookModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (book: any) => void;
+  initialBookData?: any;
 }
 
-const AddBookModal = ({ isOpen, onClose, onAdd }: AddBookModalProps) => {
+const AddBookModal = ({
+  isOpen,
+  onClose,
+  onAdd,
+  initialBookData,
+}: AddBookModalProps) => {
   const [bookData, setBookData] = useState({
     title: '',
     author: '',
@@ -17,6 +23,19 @@ const AddBookModal = ({ isOpen, onClose, onAdd }: AddBookModalProps) => {
     rating: 0,
     notes: '',
   });
+
+  useEffect(() => {
+    if (initialBookData) {
+      setBookData({
+        title: initialBookData.title || '',
+        author: initialBookData.author || '',
+        isbn: initialBookData.isbn || '',
+        status: initialBookData.status || 'unread',
+        rating: initialBookData.rating ?? 0,
+        notes: initialBookData.notes || '',
+      });
+    }
+  }, [initialBookData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
