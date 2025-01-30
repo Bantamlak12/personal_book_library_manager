@@ -125,6 +125,8 @@ const Dashboard = () => {
 
   // Handle page change
   const handlePageChange = async (newPage: number) => {
+    if (newPage < 1) return;
+
     try {
       const response = await fetch(`${BASE_URL}/books?page=${newPage}`, {
         method: 'GET',
@@ -141,7 +143,7 @@ const Dashboard = () => {
       const { data, metadata } = result;
 
       // If the page is empty and not the first page, fetch the previous page
-      if (data.length === 0 && newPage > 1) {
+      if (!data || data.length === 0) {
         await handlePageChange(newPage - 1);
       } else {
         setBooks(data);
@@ -181,7 +183,16 @@ const Dashboard = () => {
       }
 
       //   Update the books state with the new book
-      setBooks((prevBooks) => [...prevBooks, result['data']]);
+      setBooks((prevBooks) => {
+        const safePrevBooks = Array.isArray(prevBooks) ? prevBooks : [];
+
+        return [
+          ...safePrevBooks,
+          ...(Array.isArray(result['data'])
+            ? result['data']
+            : [result['data']]),
+        ];
+      });
     } catch (error) {
       alert(`${error}`);
     }
@@ -215,7 +226,9 @@ const Dashboard = () => {
   };
 
   const handleDeleteBook = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this book?')) {
+    if (!window.confirm('Are you sure you want to delete this book?')) return;
+
+    try {
       const response = await fetch(`${BASE_URL}/books/${id}`, {
         method: 'DELETE',
         headers: {
@@ -227,18 +240,21 @@ const Dashboard = () => {
         throw new Error('Failed to delete the book');
       }
 
-      if (response.status !== 204) {
-        throw new Error('Failed to delete the book');
-      }
+      // Update state before making a new request
+      setBooks((prevBooks) => prevBooks.filter((book) => book.id !== id));
 
-      const updatedBooks = books.filter((book) => book.id !== id);
-      const isLastItemonPage = updatedBooks.length === 0 && currentPage > 1;
-
-      const newPage = isLastItemonPage ? currentPage - 1 : currentPage;
+      // Check if this was the last item on the current page
+      const isLastItemOnPage = books.length === 1 && currentPage > 1;
+      const newPage = isLastItemOnPage ? currentPage - 1 : currentPage;
 
       setMetadata((prev) => ({ ...prev, current_page: newPage }));
 
-      await handlePageChange(newPage);
+      if (isLastItemOnPage) {
+        await handlePageChange(newPage); // Fetch previous page
+      }
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      alert('An error occurred while deleting the book.');
     }
   };
 
@@ -254,7 +270,7 @@ const Dashboard = () => {
     navigate('/login');
   };
 
-  const filteredBooks = books
+  const filteredBooks = (books || [])
     .filter((book) => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
