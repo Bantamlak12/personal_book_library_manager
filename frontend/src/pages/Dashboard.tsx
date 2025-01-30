@@ -26,7 +26,9 @@ const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
   const [pendingIsbnQuery, setPendingIsbnQuery] = useState('');
+  const [selectedBook, setSelectedBook] = useState<any>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddSearchedModalOpen, setIsAddSearchedModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -88,7 +90,9 @@ const Dashboard = () => {
                 title: book.title,
                 author: book.author_name?.join(', '),
                 isbn:
-                  book.isbn && book.isbn.length > 0 ? book.isbn[0] : undefined,
+                  book.isbn && book.isbn.length > 0
+                    ? book.isbn[0]
+                    : searchQuery,
               })
             )
           );
@@ -100,6 +104,22 @@ const Dashboard = () => {
 
     fetchBooks();
   }, [searchScope, searchQuery, currentPage]);
+
+  const handleOpenAddModal = (book: {
+    title: string;
+    author: string;
+    isbn: string;
+  }) => {
+    setSelectedBook({
+      title: book.title || '',
+      author: book.author || '',
+      isbn: book.isbn || '',
+      status: 'unread',
+      rating: 0,
+      notes: '',
+    });
+    setIsAddSearchedModalOpen(true);
+  };
 
   // Handle page change
   const handlePageChange = async (newPage: number) => {
@@ -447,7 +467,11 @@ const Dashboard = () => {
         >
           {searchScope === 'openlibrary'
             ? searchedBooks.map((book, index) => (
-                <SearchBookCard key={index} book={book} />
+                <SearchBookCard
+                  key={index}
+                  book={book}
+                  onAddToCollection={handleOpenAddModal}
+                />
               ))
             : paginatedBooks.map((book) => (
                 <BookCard
@@ -461,6 +485,12 @@ const Dashboard = () => {
                 />
               ))}
         </div>
+        <AddBookModal
+          isOpen={isAddSearchedModalOpen}
+          onClose={() => setIsAddSearchedModalOpen(false)}
+          onAdd={handleAddBook}
+          initialBookData={selectedBook}
+        />
 
         {/* Empty State */}
         {((searchScope === 'my-collections' && filteredBooks.length === 0) ||
