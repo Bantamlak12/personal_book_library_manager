@@ -14,7 +14,7 @@ func SetupRouter(repo *repository.SQLiteRepository) *gin.Engine {
 
 	// CORS configuration
 	config := cors.Config{
-		AllowOrigins:     []string{"https://personal-book-library-manager-sooty.vercel.app"},
+		AllowOrigins:     []string{"https://personal-book-library-manager-sooty.vercel.app", "http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
